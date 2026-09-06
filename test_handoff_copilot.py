@@ -15,6 +15,24 @@ class HandoffCopilotTests(unittest.TestCase):
 
         self.assertIn("## Intent\n\n- Add a Markdown handoff generator.", brief)
 
+    def test_marks_redacted_reasoning_as_incomplete(self):
+        checkpoint = {
+            "intent": "Add a Markdown handoff generator.",
+            "files_changed": ["handoff_copilot.py"],
+            "reasoning": "[REDACTED]",
+            "unfinished": ["Add CLI support."],
+            "risks": ["Checkpoint format may vary."],
+            "verification_checklist": ["Run unit tests."],
+        }
+
+        brief = generate_handoff_brief(checkpoint)
+
+        self.assertIn("Context: PARTIAL — some fields redacted or missing", brief)
+        self.assertIn(
+            "## What's Done — Incomplete — data unavailable", brief
+        )
+        self.assertNotIn("- [REDACTED]", brief)
+
 
 if __name__ == "__main__":
     unittest.main()
